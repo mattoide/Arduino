@@ -112,7 +112,6 @@ async listPairedDevices(){
   // this.setState({pairedDevices: pairedDevices})
   this.setState({devices: pairedDevices})
   this.setState({modalVisible:true});
-
 }
 
 async listUnPairedDevices(){
@@ -130,8 +129,8 @@ async listUnPairedDevices(){
 }
 
 async discoverDevices(){
+  let pairedDevices = await BluetoothSerial.list();
 
-  
   PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION)
 .then(result => {
   if (!result) {
@@ -139,16 +138,16 @@ async discoverDevices(){
   } else{
     if(this.state.isBtEnabled){
 
-      this.setState({devices:[]});
+      //this.setState({devices:[]});
       this.setState({loading: true})
       // const devices = await BluetoothSerial.discoverUnpairedDevices();
         BluetoothSerial.discoverUnpairedDevices().then( 
           
           devices => {
 
-          this.setState({devices: devices})
+          this.setState({devices: devices })
           this.setState({loading:false})
-          this.setState({modalVisible:true})
+          // this.setState({modalVisible:true})
     
         , error =>{
           this.setState({loading:false})
@@ -162,7 +161,6 @@ async discoverDevices(){
   }
 });
 
-
 }
 
 toast(message){
@@ -175,19 +173,27 @@ toast(message){
  getDeviceToConnect = (deviceToConnect) => {
   //this.setState({connectedDevice: deviceToConnect})
   if(!deviceToConnect){
-    this.setState({modalVisible:false, devices:[]})
+    //this.setState({modalVisible:false, devices:[]})
+    // this.state.devices = [];
+     this.setState({devices:[]})
+
   }else{
+    this.setState({loading:true})
     this.connectToDevice(deviceToConnect.id);
   }
 
 }
+
 
  async connectToDevice(id){
 
   // BluetoothSerial.connect('98:D3:31:F5:3F:40')
   BluetoothSerial.connect(id)
   .then( connectedDevice => {
+    this.setState({loading:false})
+
    this.setState({connectedDevice: connectedDevice, devices:[], modalVisible:false})
+
 }, error => {
 
   this.toast("Impossibile connettersi.");
@@ -338,12 +344,12 @@ toast(message){
 {/* Bluetooth commmands */}
 
           <View style={styles.btCommandContainer}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
               style={styles.button}
               onPress={() => this.connectToDevice('98:D3:31:F5:3F:40')}
             >
               <Text style={styles.buttonText}>Connect to</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             {/* <TouchableOpacity
               style={styles.button}
               onPress={() => this.handleClearButton()}

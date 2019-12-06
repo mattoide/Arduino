@@ -14,7 +14,7 @@ export default class Modale extends Component {
   };
 }
 
-componentWillReceiveProps(){
+UNSAFE_componentWillReceiveProps(){
   
   if(this.props.devices.length > 0){
 
@@ -22,6 +22,9 @@ componentWillReceiveProps(){
   this.setState({connectedDevice: this.props.connectedDevice});
   this.setModalVisible(true);
 
+  } else{
+    if(this.state.modalVisible == true)
+    this.setModalVisible(false);
   }
 
 }
@@ -31,7 +34,6 @@ componentDidUpdate(){
 
   setModalVisible(visible) {
     this.setState({modalVisible: visible});
-    console.log(visible)
   }
 
   toast(item){
@@ -48,7 +50,15 @@ componentDidUpdate(){
         <Modal
           animationType="fade" 
           transparent={true} 
-          visible={this.state.modalVisible}>
+          visible={this.state.modalVisible}
+          // onDismiss={() =>{
+          //   if(this.state.modalVisible==true){
+          //     this.setModalVisible(false)
+          //                       //this.props.connectTo();
+
+          //   }
+          // }}
+          >
 
           <View style={{flex:1, width:'100%', justifyContent:'center', backgroundColor:'whitesmoke', opacity:0.8}}> 
           
@@ -87,7 +97,7 @@ componentDidUpdate(){
         />
       <TouchableOpacity 
                 onPress={() => {
-                  this.setModalVisible(false);
+                  //this.setModalVisible(false);
                   this.props.connectTo();
                 }}>
                 <Text style={{fontSize:20, color:'#988C6C', textAlign:'center'}}>CHIUDI</Text>
