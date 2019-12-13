@@ -26,7 +26,7 @@
 char bt_bytes[MAX_BYTES];
 String toSpeed;
 
-int motor_speed = 200;
+int motor_speed = 0;
 int motor_L_speed = 0;
 int motor_R_speed = 0;
 
@@ -35,7 +35,7 @@ SoftwareSerial bluetoothSerial =  SoftwareSerial(bluetoothSerial_RX_PIN, bluetoo
 void setup() {
 
   Serial.begin(9600);
-  bluetoothSerial.begin(9600);
+  bluetoothSerial.begin(38400);
   bluetoothSerial.setTimeout(5);
 
 

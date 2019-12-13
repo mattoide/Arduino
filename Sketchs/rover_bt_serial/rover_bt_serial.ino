@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 
-#define DEBUG false
+#define DEBUG true
 
 #define bluetoothSerial_TX_PIN 3
 #define bluetoothSerial_RX_PIN 2
@@ -35,7 +35,7 @@ SoftwareSerial bluetoothSerial =  SoftwareSerial(bluetoothSerial_RX_PIN, bluetoo
 void setup() {
 
   Serial.begin(9600);
-  bluetoothSerial.begin(9600);
+  bluetoothSerial.begin(38400);
   bluetoothSerial.setTimeout(5);
 
 
