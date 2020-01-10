@@ -5,10 +5,10 @@
 #define bluetoothSerial_TX_PIN 11
 #define bluetoothSerial_RX_PIN 12
 
-#define MOTORE1_1 2
-#define MOTORE1_2 3
-#define MOTORE2_1 5
-#define MOTORE2_2 6
+#define MOTORE1_1 6
+#define MOTORE1_2 5
+#define MOTORE2_1 9
+#define MOTORE2_2 10
 #define MOTOR_STOP 0
 #define MAX 255
 
@@ -26,7 +26,7 @@
 char bt_bytes[MAX_BYTES];
 String toSpeed;
 
-int motor_speed = 0;
+int motor_speed = 200;
 int motor_L_speed = 0;
 int motor_R_speed = 0;
 
@@ -35,7 +35,7 @@ SoftwareSerial bluetoothSerial =  SoftwareSerial(bluetoothSerial_RX_PIN, bluetoo
 void setup() {
 
   Serial.begin(9600);
-  bluetoothSerial.begin(38400);
+  bluetoothSerial.begin(9600);
   bluetoothSerial.setTimeout(5);
 
 

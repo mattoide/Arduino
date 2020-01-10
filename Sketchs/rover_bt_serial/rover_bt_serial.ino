@@ -35,7 +35,7 @@ SoftwareSerial bluetoothSerial =  SoftwareSerial(bluetoothSerial_RX_PIN, bluetoo
 void setup() {
 
   Serial.begin(9600);
-  bluetoothSerial.begin(38400);
+  bluetoothSerial.begin(9600);
   bluetoothSerial.setTimeout(5);
 
 
