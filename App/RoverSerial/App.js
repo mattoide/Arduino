@@ -375,7 +375,9 @@ toast(message){
             </TouchableOpacity> */}
 
           <TouchableOpacity
-              onPress={() => this.discoverDevices()}
+              // onPress={() => this.discoverDevices()}
+              onPress={() => this.listPairedDevices()}
+              
             >
               {/* <Text style={styles.buttonText}>Cerca dispositivi</Text> */}
               <MaterialIcons name="bluetooth-searching" size={50} />
