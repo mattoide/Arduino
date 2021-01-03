@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 
-#define DEBUG true
+#define DEBUG false
 
 #define bluetoothSerial_TX_PIN 11
 #define bluetoothSerial_RX_PIN 12
@@ -20,8 +20,12 @@
 #define RIGHT 68
 #define L_FORWARD 81
 #define R_FORWARD 69
+#define L_BACKWARD 90
+#define R_BACKWARD 67
 #define RIGHT 68
 #define SPEED 70
+
+#define STEER_SPEED 255
 
 char bt_bytes[MAX_BYTES];
 String toSpeed;
@@ -56,7 +60,7 @@ void setup() {
 
   Serial.println("Pronto!");
   bluetoothSerial.println("Pronto!");
-  
+
 
 }
 
@@ -70,9 +74,10 @@ void loop() {
     memset(bt_bytes, 0, sizeof bt_bytes);
     bluetoothSerial.readBytesUntil('\n', bt_bytes, MAX_BYTES);
 
-          #if DEBUG
-              Serial.println(bt_bytes);
-          #endif
+#if DEBUG
+    Serial.println(bt_bytes);
+#endif
+
 
     switch (bt_bytes[0]) {
 
@@ -84,13 +89,13 @@ void loop() {
         backward();
         break;
 
-      case LEFT:
-        left();
-        break;
+      /* case LEFT:
+         left();
+         break;
 
-      case RIGHT:
-        right();
-        break;
+        case RIGHT:
+         right();
+         break;*/
 
       case STOP:
         stop_motor();
@@ -105,13 +110,20 @@ void loop() {
         break;
 
       case L_FORWARD:
-        motor_L_speed = (String(bt_bytes[1]) + String(bt_bytes[2]) + String(bt_bytes[3])).toInt();
+
         forwardL();
         break;
 
       case R_FORWARD:
-        motor_R_speed = (String(bt_bytes[1]) + String(bt_bytes[2]) + String(bt_bytes[3])).toInt();
         forwardR();
+        break;
+
+      case R_BACKWARD:
+        backwardR();
+        break;
+
+      case L_BACKWARD:
+        backwardL();
         break;
 
       default:
@@ -129,13 +141,23 @@ void loop() {
 }
 
 void forwardR() {
-  analogWrite(MOTORE1_1, MOTOR_STOP);
-  analogWrite(MOTORE1_2, motor_R_speed);
+  right();
+  forward();
 }
 
 void forwardL() {
-  analogWrite(MOTORE2_1, motor_L_speed);
-  analogWrite(MOTORE2_2, MOTOR_STOP);
+  left();
+  forward();
+}
+
+void backwardR() {
+  right();
+  backward();
+}
+
+void backwardL() {
+  left();
+  backward();
 }
 
 void stop_motor() {
@@ -149,33 +171,22 @@ void stop_motor() {
 void forward() {
   analogWrite(MOTORE1_1, MOTOR_STOP);
   analogWrite(MOTORE1_2, motor_speed);
-
-  analogWrite(MOTORE2_1, motor_speed);
-  analogWrite(MOTORE2_2, MOTOR_STOP);
 }
 
 
 void backward() {
   analogWrite(MOTORE1_1, motor_speed);
   analogWrite(MOTORE1_2, MOTOR_STOP);
-
-  analogWrite(MOTORE2_1, MOTOR_STOP);
-  analogWrite(MOTORE2_2, motor_speed);
 }
 
-
-void right() {
-  analogWrite(MOTORE1_1, MOTOR_STOP);
-  analogWrite(MOTORE1_2, motor_speed);
-
-  analogWrite(MOTORE2_1, MOTOR_STOP);
-  analogWrite(MOTORE2_2, motor_speed);
-}
 
 void left() {
-  analogWrite(MOTORE1_1, motor_speed);
-  analogWrite(MOTORE1_2, MOTOR_STOP);
+  analogWrite(MOTORE2_1, 0);
+  analogWrite(MOTORE2_2, STEER_SPEED);
+}
 
-  analogWrite(MOTORE2_1, motor_speed);
-  analogWrite(MOTORE2_2, MOTOR_STOP);
+void right() {
+
+  analogWrite(MOTORE2_1, STEER_SPEED);
+  analogWrite(MOTORE2_2, 0);
 }
