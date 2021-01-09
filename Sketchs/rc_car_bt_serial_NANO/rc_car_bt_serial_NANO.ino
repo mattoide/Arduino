@@ -5,8 +5,20 @@
 #define bluetoothSerial_TX_PIN 11
 #define bluetoothSerial_RX_PIN 12
 
+/*
+l29
 #define MOTORE1_1 6
 #define MOTORE1_2 5
+*/
+
+
+/*
+drv
+*/
+#define MOTORE1_1 5
+#define MOTORE1_2 6
+
+
 #define MOTORE2_1 9
 #define MOTORE2_2 10
 #define MOTOR_STOP 0

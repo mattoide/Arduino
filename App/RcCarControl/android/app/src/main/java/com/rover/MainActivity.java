@@ -1,4 +1,4 @@
-package com.rover;
+package com.rccarcontrol;
 
 import com.facebook.react.ReactActivity;
 

@@ -79,7 +79,7 @@ import com.android.build.OutputFile
 
 project.ext.react = [
     enableHermes: false,  // clean and rebuild if changing
-    // bundleInDebug: true
+     bundleInDebug: true
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
@@ -130,7 +130,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.rover"
+        applicationId "com.rccarcontrol"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
