@@ -97,6 +97,8 @@ class App extends Component {
   }
 
   switchDrivingMode(drivingMode) {
+    BackgroundTimer.stopBackgroundTimer();
+    BluetoothSerial.write("X" + '\n');
     this.setState({ drivingMode: drivingMode });
   }
 
@@ -279,6 +281,7 @@ class App extends Component {
       this.state.timerInterval);
   }
   forwardT() {
+    BluetoothSerial.write("X" + '\n');
     BluetoothSerial.write("W" + '\n');
   }
   backward() {
@@ -288,6 +291,7 @@ class App extends Component {
       this.state.timerInterval);
   }
   backwardT() {
+    BluetoothSerial.write("X" + '\n');
     BluetoothSerial.write("S" + '\n');
   }
   right() {
