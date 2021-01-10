@@ -97,7 +97,7 @@ class App extends Component {
   }
 
   switchDrivingMode(drivingMode) {
-    BackgroundTimer.stopBackgroundTimer();
+   // BackgroundTimer.stopBackgroundTimer();
     BluetoothSerial.write("X" + '\n');
     this.setState({ drivingMode: drivingMode });
   }
@@ -242,79 +242,93 @@ class App extends Component {
 
 
   forwardLeft() {
+    BluetoothSerial.write("Q" + '\n');
 
-    BackgroundTimer.runBackgroundTimer(() => {
-      BluetoothSerial.write("Q" + '\n');
-    },
-      this.state.timerInterval);
+    // BackgroundTimer.runBackgroundTimer(() => {
+    //   BluetoothSerial.write("Q" + '\n');
+    // },
+    //   this.state.timerInterval);
   }
 
 
   forwardRight() {
-    BackgroundTimer.runBackgroundTimer(() => {
-      BluetoothSerial.write("E" + '\n');
-    },
-      this.state.timerInterval);
+    BluetoothSerial.write("E" + '\n');
+
+    // BackgroundTimer.runBackgroundTimer(() => {
+    //   BluetoothSerial.write("E" + '\n');
+    // },
+    //   this.state.timerInterval);
   }
 
 
   backwardLeft() {
-    BackgroundTimer.runBackgroundTimer(() => {
-      BluetoothSerial.write("Z" + '\n');
-    },
-      this.state.timerInterval);
+    
+          BluetoothSerial.write("Z" + '\n');
+
+    // BackgroundTimer.runBackgroundTimer(() => {
+    //   BluetoothSerial.write("Z" + '\n');
+    // },
+    //   this.state.timerInterval);
   }
 
 
   backwardRight() {
-    BackgroundTimer.runBackgroundTimer(() => {
-      BluetoothSerial.write("C" + '\n');
-    },
-      this.state.timerInterval);
+  
+    BluetoothSerial.write("C" + '\n');
+
+    // BackgroundTimer.runBackgroundTimer(() => {
+    //   BluetoothSerial.write("C" + '\n');
+    // },
+    //   this.state.timerInterval);
   }
 
 
   forward() {
-    BackgroundTimer.runBackgroundTimer(() => {
-      BluetoothSerial.write("W" + '\n');
-    },
-      this.state.timerInterval);
+
+    BluetoothSerial.write("W" + '\n');
+
+    // BackgroundTimer.runBackgroundTimer(() => {
+    //   BluetoothSerial.write("W" + '\n');
+    // },
+    //   this.state.timerInterval);
   }
   forwardT() {
     BluetoothSerial.write("X" + '\n');
     BluetoothSerial.write("W" + '\n');
   }
   backward() {
-    BackgroundTimer.runBackgroundTimer(() => {
-      BluetoothSerial.write("S" + '\n');
-    },
-      this.state.timerInterval);
+    BluetoothSerial.write("S" + '\n');
+
+    // BackgroundTimer.runBackgroundTimer(() => {
+    //   BluetoothSerial.write("S" + '\n');
+    // },
+    //   this.state.timerInterval);
   }
   backwardT() {
     BluetoothSerial.write("X" + '\n');
     BluetoothSerial.write("S" + '\n');
   }
   right() {
-    //BluetoothSerial.write("D"+'\n');
-    BackgroundTimer.runBackgroundTimer(() => {
-      BluetoothSerial.write("D" + '\n');
-    },
-      this.state.timerInterval);
+    BluetoothSerial.write("D"+'\n');
+    // BackgroundTimer.runBackgroundTimer(() => {
+    //   BluetoothSerial.write("D" + '\n');
+    // },
+    //   this.state.timerInterval);
   }
   left() {
-    //BluetoothSerial.write("A"+'\n');
-    BackgroundTimer.runBackgroundTimer(() => {
-      BluetoothSerial.write("A" + '\n');
-    },
-      this.state.timerInterval);
+    BluetoothSerial.write("A"+'\n');
+    // BackgroundTimer.runBackgroundTimer(() => {
+    //   BluetoothSerial.write("A" + '\n');
+    // },
+    //   this.state.timerInterval);
   }
-  stop() {
-    BackgroundTimer.stopBackgroundTimer();
+  stop() { 
+   // BackgroundTimer.stopBackgroundTimer();
     BluetoothSerial.write("X" + '\n');
   }
 
   stopT() {
-    BackgroundTimer.stopBackgroundTimer();
+   // BackgroundTimer.stopBackgroundTimer();
     BluetoothSerial.write("Y" + '\n');
   }
 
