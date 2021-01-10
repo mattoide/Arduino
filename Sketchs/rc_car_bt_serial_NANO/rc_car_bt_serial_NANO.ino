@@ -6,14 +6,14 @@
 #define bluetoothSerial_RX_PIN 12
 
 /*
-l29
-#define MOTORE1_1 6
-#define MOTORE1_2 5
+  l29
+  #define MOTORE1_1 6
+  #define MOTORE1_2 5
 */
 
 
 /*
-drv
+  drv
 */
 #define MOTORE1_1 5
 #define MOTORE1_2 6
@@ -26,6 +26,7 @@ drv
 
 #define MAX_BYTES 5
 #define STOP 88
+#define STOPT 89
 #define FORWARD 87
 #define BACKWARD 83
 #define LEFT 65
@@ -101,16 +102,20 @@ void loop() {
         backward();
         break;
 
-      /* case LEFT:
-         left();
-         break;
+      case LEFT:
+        left();
+        break;
 
-        case RIGHT:
-         right();
-         break;*/
+      case RIGHT:
+        right();
+        break;
 
       case STOP:
         stop_motor();
+        break;
+
+      case STOPT:
+        stop_motor_t();
         break;
 
       case SPEED:
@@ -176,6 +181,12 @@ void stop_motor() {
   analogWrite(MOTORE1_1, MOTOR_STOP);
   analogWrite(MOTORE1_2, MOTOR_STOP);
 
+  analogWrite(MOTORE2_1, MOTOR_STOP);
+  analogWrite(MOTORE2_2, MOTOR_STOP);
+}
+
+
+void stop_motor_t() {
   analogWrite(MOTORE2_1, MOTOR_STOP);
   analogWrite(MOTORE2_2, MOTOR_STOP);
 }

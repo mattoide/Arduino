@@ -309,6 +309,11 @@ class App extends Component {
     BluetoothSerial.write("X" + '\n');
   }
 
+  stopT() {
+    BackgroundTimer.stopBackgroundTimer();
+    BluetoothSerial.write("Y" + '\n');
+  }
+
   buttonStyle = status => {
     return status
       ? styles.button
@@ -341,7 +346,7 @@ class App extends Component {
 
           <View>
             <TouchableOpacity
-              onPress={() => this.stop()}
+              onPress={() => this.stopT()}
               disabled={!this.state.isBtConnected}
             >
               <FeatherIcons name="stop-circle" size={100} />
@@ -381,7 +386,8 @@ class App extends Component {
 
           <View>
             <TouchableOpacity
-              onPress={() => this.left()}
+              onPressIn={() => this.left()}
+              onPressOut={()=>this.stopT()}
               disabled={!this.state.isBtConnected}
             >
               <AntDesign name="caretleft" size={100} />
@@ -390,7 +396,8 @@ class App extends Component {
 
           <View>
             <TouchableOpacity
-              onPress={() => this.right()}
+              onPressIn={() => this.right()}
+              onPressOut={()=>this.stopT()}
               disabled={!this.state.isBtConnected}
             >
               <AntDesign name="caretright" size={100} />
@@ -412,7 +419,7 @@ class App extends Component {
 
           <View>
             <TouchableOpacity
-              onPress={() => this.stop()}
+              onPress={() => this.stop() }
               disabled={!this.state.isBtConnected}
             >
               <FeatherIcons name="stop-circle" size={100} />
