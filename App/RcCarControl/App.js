@@ -40,6 +40,8 @@ const initialState = {
   timerInterval: 3
 };
 
+const transformRateX = 40
+const transformRateY = 10
 
 class App extends Component {
   constructor(props) {
@@ -258,31 +260,35 @@ class App extends Component {
     BackgroundTimer.runBackgroundTimer(() => {
       BluetoothSerial.write("Z" + '\n');
     },
-      this.state.timerInterval);  }
+      this.state.timerInterval);
+  }
 
 
   backwardRight() {
     BackgroundTimer.runBackgroundTimer(() => {
       BluetoothSerial.write("C" + '\n');
     },
-      this.state.timerInterval);  }
+      this.state.timerInterval);
+  }
 
 
   forward() {
-
-    //BluetoothSerial.write("W"+'\n');
-
     BackgroundTimer.runBackgroundTimer(() => {
       BluetoothSerial.write("W" + '\n');
     },
       this.state.timerInterval);
   }
+  forwardT() {
+    BluetoothSerial.write("W" + '\n');
+  }
   backward() {
-    //BluetoothSerial.write("S"+'\n');
     BackgroundTimer.runBackgroundTimer(() => {
       BluetoothSerial.write("S" + '\n');
     },
       this.state.timerInterval);
+  }
+  backwardT() {
+    BluetoothSerial.write("S" + '\n');
   }
   right() {
     //BluetoothSerial.write("D"+'\n');
@@ -308,6 +314,125 @@ class App extends Component {
       ? styles.button
       : Object.assign({}, styles.button, { backgroundColor: "#C0C0C0" });
   };
+
+  oneHandPad() {
+    return (
+      <View>
+
+        <View style={styles.padUpStopStyle}>
+          <TouchableOpacity
+            onPress={() => this.forwardT()}
+            disabled={!this.state.isBtConnected}
+          >
+            <AntDesign name="caretup" size={100} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.padLRStopStyle}>
+
+          <View>
+            <TouchableOpacity
+              onPress={() => this.left()}
+              disabled={!this.state.isBtConnected}
+            >
+              <AntDesign name="caretleft" size={100} />
+            </TouchableOpacity>
+          </View>
+
+          <View>
+            <TouchableOpacity
+              onPress={() => this.stop()}
+              disabled={!this.state.isBtConnected}
+            >
+              <FeatherIcons name="stop-circle" size={100} />
+            </TouchableOpacity>
+          </View>
+
+          <View>
+            <TouchableOpacity
+              onPress={() => this.right()}
+              disabled={!this.state.isBtConnected}
+            >
+              <AntDesign name="caretright" size={100} />
+            </TouchableOpacity>
+          </View>
+
+        </View>
+
+        <View style={styles.padUpStopStyle}>
+          <TouchableOpacity
+            onPress={() => this.backwardT()}
+            disabled={!this.state.isBtConnected}
+          >
+            <AntDesign name="caretdown" size={100} />
+          </TouchableOpacity>
+        </View>
+
+      </View>
+    )
+  }
+
+  twoHandPad() {
+    return (
+      <View style={styles.two}>
+
+
+        <View style={styles.padLRStopTwoStyle}>
+
+          <View>
+            <TouchableOpacity
+              onPress={() => this.left()}
+              disabled={!this.state.isBtConnected}
+            >
+              <AntDesign name="caretleft" size={100} />
+            </TouchableOpacity>
+          </View>
+
+          <View>
+            <TouchableOpacity
+              onPress={() => this.right()}
+              disabled={!this.state.isBtConnected}
+            >
+              <AntDesign name="caretright" size={100} />
+            </TouchableOpacity>
+          </View>
+
+        </View>
+
+        <View style={styles.padUDStopTwoStyle}>
+
+          <View style={styles.padUpStopStyle}>
+            <TouchableOpacity
+              onPress={() => this.forwardT()}
+              disabled={!this.state.isBtConnected}
+            >
+              <AntDesign name="caretup" size={100} />
+            </TouchableOpacity>
+          </View>
+
+          <View>
+            <TouchableOpacity
+              onPress={() => this.stop()}
+              disabled={!this.state.isBtConnected}
+            >
+              <FeatherIcons name="stop-circle" size={100} />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.padUpStopStyle}>
+            <TouchableOpacity
+              onPress={() => this.backwardT()}
+              disabled={!this.state.isBtConnected}
+            >
+              <AntDesign name="caretdown" size={100} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+      </View>
+
+
+    )
+  }
 
   render() {
     return (
@@ -423,7 +548,22 @@ class App extends Component {
               <Text style={styles.buttonText}>INVIA</Text>
             </TouchableOpacity> */}
           </View>
+          <View style={styles.drivingModeContainer}>
+            {this.state.drivingMode == "pad" ?
+              <TouchableOpacity
+                onPress={() => this.switchDrivingMode("sliders")}
+              >
+                <MaterialIcons name="gamepad" size={50} />
+              </TouchableOpacity>
 
+              :
+
+              <TouchableOpacity
+                onPress={() => this.switchDrivingMode("pad")}
+              >
+                <FeatherIcons name="sliders" size={50} />
+              </TouchableOpacity>}
+          </View>
 
           <View style={styles.padStyleS}>
 
@@ -443,81 +583,93 @@ class App extends Component {
             />
 
           </View>
-          <View style={styles.padStyle}>
-            <View style={styles.padStyleL}>
-              <TouchableOpacity
-                style={styles.upLeft}
 
-                //style={this.buttonStyle(this.state.connected)}
-                onPressIn={() => this.forwardLeft()}
-                onPressOut={() => this.stop()}
-                disabled={!this.state.isBtConnected}
-              >
-                {/* <Text style={styles.buttonText}>Avanti</Text> */}
-                <AntDesign name="caretleft" size={100} />
+          {this.state.drivingMode == "pad" ?
+            <View>
+
+              <View style={styles.padStyle}>
+                <View style={styles.padStyleL}>
+                  <TouchableOpacity
+                    style={styles.upLeft}
+
+                    //style={this.buttonStyle(this.state.connected)}
+                    onPressIn={() => this.forwardLeft()}
+                    onPressOut={() => this.stop()}
+                    disabled={!this.state.isBtConnected}
+                  >
+                    {/* <Text style={styles.buttonText}>Avanti</Text> */}
+                    <AntDesign name="caretleft" size={100} />
 
 
-              </TouchableOpacity>
+                  </TouchableOpacity>
 
-              <TouchableOpacity
-                //style={this.buttonStyle(this.state.connected)}
-                onPressIn={() => this.forward()}
-                onPressOut={() => this.stop()}
-                disabled={!this.state.isBtConnected}
-              >
-                {/* <Text style={styles.buttonText}>Indietro</Text> */}
-                <AntDesign name="caretup" size={100} />
+                  <TouchableOpacity
+                    //style={this.buttonStyle(this.state.connected)}
+                    onPressIn={() => this.forward()}
+                    onPressOut={() => this.stop()}
+                    disabled={!this.state.isBtConnected}
+                  >
+                    {/* <Text style={styles.buttonText}>Indietro</Text> */}
+                    <AntDesign name="caretup" size={100} />
 
-              </TouchableOpacity>
+                  </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.upRight}
-                //style={this.buttonStyle(this.state.connected)}
-                onPressIn={() => this.forwardRight()}
-                onPressOut={() => this.stop()}
-                disabled={!this.state.isBtConnected}
-              >
-                {/* <Text style={styles.buttonText}>Indietro</Text> */}
-                <AntDesign name="caretright" size={100} />
+                  <TouchableOpacity
+                    style={styles.upRight}
+                    //style={this.buttonStyle(this.state.connected)}
+                    onPressIn={() => this.forwardRight()}
+                    onPressOut={() => this.stop()}
+                    disabled={!this.state.isBtConnected}
+                  >
+                    {/* <Text style={styles.buttonText}>Indietro</Text> */}
+                    <AntDesign name="caretright" size={100} />
 
-              </TouchableOpacity>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.padStyleR}>
+
+                  <TouchableOpacity
+
+                    style={styles.downLeft}
+
+                    onPressIn={() => this.backwardLeft()}
+                    onPressOut={() => this.stop()}
+                    disabled={!this.state.isBtConnected}
+                  >
+                    <AntDesign name="caretleft" size={100} />
+
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPressIn={() => this.backward()}
+                    onPressOut={() => this.stop()}
+                    disabled={!this.state.isBtConnected}
+                  >
+                    <AntDesign name="caretdown" size={100} />
+
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.downRight}
+
+                    onPressIn={() => this.backwardRight()}
+                    onPressOut={() => this.stop()}
+                    disabled={!this.state.isBtConnected}
+                  >
+                    <AntDesign name="caretright" size={100} />
+
+                  </TouchableOpacity>
+                </View>
+
+              </View>
             </View>
-            <View style={styles.padStyleR}>
 
-              <TouchableOpacity
 
-                style={styles.downLeft}
+            :
+            // this.oneHandPad()
+            this.twoHandPad()
 
-                onPressIn={() => this.backwardLeft()}
-                onPressOut={() => this.stop()}
-                disabled={!this.state.isBtConnected}
-              >
-                <AntDesign name="caretleft" size={100} />
-
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPressIn={() => this.backward()}
-                onPressOut={() => this.stop()}
-                disabled={!this.state.isBtConnected}
-              >
-                <AntDesign name="caretdown" size={100} />
-
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.downRight}
-
-                onPressIn={() => this.backwardRight()}
-                onPressOut={() => this.stop()}
-                disabled={!this.state.isBtConnected}
-              >
-                <AntDesign name="caretright" size={100} />
-
-              </TouchableOpacity>
-            </View>
-
-          </View>
+          }
 
 
         </View>
@@ -560,7 +712,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",
-    marginVertical: 50
+    marginVertical: 15
   },
   loading: {
     position: 'absolute',
@@ -579,24 +731,27 @@ const styles = StyleSheet.create({
     flexDirection: "row"
   },
   padStyle: {
+    flex: 1,
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-    marginTop: 50
+    marginTop: 50,
+    // height:300,
 
   },
   padStyleL: {
     display: "flex",
-    flex: 0.3,
+    flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingBottom: 50
   },
   padStyleR: {
     display: "flex",
-    flex: 0.5,
+    // flex: 1,
     flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: 50
   },
   padStyleS: {
     display: "flex",
@@ -604,6 +759,29 @@ const styles = StyleSheet.create({
     marginTop: 50
   },
 
+  two: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 50
+  },
+  padLRStopTwoStyle: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignSelf: 'center'
+  },
+
+  padUDStopTwoStyle: {
+    flexDirection: "column",
+  },
+
+  padLRStopStyle: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  padUpStopStyle: {
+    flexDirection: "row",
+    justifyContent: "center",
+  },
 
   slidersStyle: {
     flex: 1,
@@ -683,16 +861,16 @@ const styles = StyleSheet.create({
   },
 
   upLeft: {
-    transform: [{ rotate: '45deg' }]
+    transform: [{ rotate: '45deg' }, { translateY: transformRateY }, { translateX: transformRateX }]
   },
   upRight: {
-    transform: [{ rotate: '-45deg' }],
+    transform: [{ rotate: '-45deg' }, { translateY: transformRateY }, { translateX: -transformRateX }]
   },
   downLeft: {
-    transform: [{ rotate: '-45deg' }],
+    transform: [{ rotate: '-45deg' }, { translateY: -transformRateY }, { translateX: transformRateX }]
   },
   downRight: {
-    transform: [{ rotate: '45deg' }],
+    transform: [{ rotate: '45deg' }, { translateY: -transformRateY }, { translateX: -transformRateX }]
   }
 });
 
