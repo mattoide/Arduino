@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import Slider from '@react-native-community/slider';
 import BluetoothSerial from 'react-native-bluetooth-serial-next';
+import AxisPad from 'react-native-axis-pad';
+
 import BackgroundTimer from 'react-native-background-timer';
 import Modal from './src/modal';
 
@@ -97,7 +99,7 @@ class App extends Component {
   }
 
   switchDrivingMode(drivingMode) {
-   // BackgroundTimer.stopBackgroundTimer();
+    // BackgroundTimer.stopBackgroundTimer();
     BluetoothSerial.write("X" + '\n');
     this.setState({ drivingMode: drivingMode });
   }
@@ -262,8 +264,8 @@ class App extends Component {
 
 
   backwardLeft() {
-    
-          BluetoothSerial.write("Z" + '\n');
+
+    BluetoothSerial.write("Z" + '\n');
 
     // BackgroundTimer.runBackgroundTimer(() => {
     //   BluetoothSerial.write("Z" + '\n');
@@ -273,7 +275,7 @@ class App extends Component {
 
 
   backwardRight() {
-  
+
     BluetoothSerial.write("C" + '\n');
 
     // BackgroundTimer.runBackgroundTimer(() => {
@@ -309,26 +311,26 @@ class App extends Component {
     BluetoothSerial.write("S" + '\n');
   }
   right() {
-    BluetoothSerial.write("D"+'\n');
+    BluetoothSerial.write("D" + '\n');
     // BackgroundTimer.runBackgroundTimer(() => {
     //   BluetoothSerial.write("D" + '\n');
     // },
     //   this.state.timerInterval);
   }
   left() {
-    BluetoothSerial.write("A"+'\n');
+    BluetoothSerial.write("A" + '\n');
     // BackgroundTimer.runBackgroundTimer(() => {
     //   BluetoothSerial.write("A" + '\n');
     // },
     //   this.state.timerInterval);
   }
-  stop() { 
-   // BackgroundTimer.stopBackgroundTimer();
+  stop() {
+    // BackgroundTimer.stopBackgroundTimer();
     BluetoothSerial.write("X" + '\n');
   }
 
   stopT() {
-   // BackgroundTimer.stopBackgroundTimer();
+    // BackgroundTimer.stopBackgroundTimer();
     BluetoothSerial.write("Y" + '\n');
   }
 
@@ -395,6 +397,56 @@ class App extends Component {
     )
   }
 
+  goWhere(x, y) {
+
+
+    if (y < -0.5) {
+      console.log("avanti")
+      this.forwardT();
+    }
+    if (y > 0.5) {
+      console.log("indietro")
+      this.backwardT();
+    }
+    if (y < -0.5 && x < -0.5) {
+      console.log("avati sinistra")
+      this.forwardLeft();
+    }
+    if (y < -0.5 && x > 0.5) {
+      console.log("avanti densta")
+      this.forwardRight();
+    }
+    if (y > 0.5 && x > 0.5) {
+      console.log("infietro densta")
+      this.backwardRight();
+
+    } if (y > 0.5 && x < -0.5) {
+      console.log("infietro sinistra")
+      this.backwardLeft();
+    }
+
+  }
+  oneHandPadJoy() {
+    return (
+      <View style={{ alignItems: 'center' }}>
+        <AxisPad
+          resetOnRelease={true}
+          autoCenter={true}
+          onValue={({ x, y }) => {
+            // values are between -1 and 1
+            if ( y < 0.5 && y > -0.5) {
+              this.stopT()
+              return;
+
+            }
+            console.log(x, y);
+            this.goWhere(x, y)
+          }}>
+        </AxisPad>
+      </View>
+    )
+  }
+
   twoHandPad() {
     return (
       <View style={styles.two}>
@@ -405,7 +457,7 @@ class App extends Component {
           <View>
             <TouchableOpacity
               onPressIn={() => this.left()}
-              onPressOut={()=>this.stopT()}
+              onPressOut={() => this.stopT()}
               disabled={!this.state.isBtConnected}
             >
               <AntDesign name="caretleft" size={100} />
@@ -415,7 +467,7 @@ class App extends Component {
           <View>
             <TouchableOpacity
               onPressIn={() => this.right()}
-              onPressOut={()=>this.stopT()}
+              onPressOut={() => this.stopT()}
               disabled={!this.state.isBtConnected}
             >
               <AntDesign name="caretright" size={100} />
@@ -437,7 +489,7 @@ class App extends Component {
 
           <View>
             <TouchableOpacity
-              onPress={() => this.stop() }
+              onPress={() => this.stop()}
               disabled={!this.state.isBtConnected}
             >
               <FeatherIcons name="stop-circle" size={100} />
@@ -691,8 +743,9 @@ class App extends Component {
 
 
             :
-            // this.oneHandPad()
-            this.twoHandPad()
+           // this.oneHandPad()
+           // this.oneHandPadJoy()
+           this.twoHandPad()
 
           }
 
