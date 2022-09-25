@@ -50,7 +50,7 @@ int motor_speed = 200;
 int motor_L_speed = 0;
 int motor_R_speed = 0;
 
-SoftwareSerial bluetoothSerial =  SoftwareSerial(bluetoothSerial_RX_PIN, bluetoothSerial_TX_PIN);
+SoftwareSerial bluetoothSerial = SoftwareSerial(bluetoothSerial_RX_PIN, bluetoothSerial_TX_PIN);
 
 void setup() {
 
@@ -78,8 +78,6 @@ void setup() {
 
   Serial.println("Pronto!");
   bluetoothSerial.println("Pronto!");
-
-
 }
 
 void loop() {
@@ -119,9 +117,25 @@ void loop() {
           stop_motor();
           break;
 
-        case STOPT:
-          stop_motor_t();
-          break;
+
+
+        // case L_FORWARD:
+
+        //   forwardL();
+        //   break;
+
+        // case R_FORWARD:
+        //   forwardR();
+        //   break;
+
+        // case R_BACKWARD:
+        //   backwardR();
+        //   break;
+
+        // case L_BACKWARD:
+        //   backwardL();
+        //   break;
+
 
         case SPEED:
 
@@ -131,32 +145,21 @@ void loop() {
             motor_speed = 255;
           break;
 
-        case L_FORWARD:
 
-          forwardL();
-          break;
-
-        case R_FORWARD:
-          forwardR();
-          break;
-
-        case R_BACKWARD:
-          backwardR();
-          break;
-
-        case L_BACKWARD:
-          backwardL();
+        case STOPT:
+          stop_motor_t();
           break;
 
         default:
           stop_motor();
-
+          break;
       }
     }
   } else {
     stop_motor();
   }
 
+  delay(1);
 }
 
 void forwardR() {
@@ -211,7 +214,6 @@ void left() {
 }
 
 void right() {
-
   analogWrite(MOTORE2_1, STEER_SPEED);
   analogWrite(MOTORE2_2, 0);
 }
