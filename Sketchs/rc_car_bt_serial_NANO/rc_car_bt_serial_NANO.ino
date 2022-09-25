@@ -46,7 +46,7 @@
 char bt_bytes[MAX_BYTES];
 String toSpeed;
 
-int motor_speed = 200;
+int motor_speed = 255;
 int motor_L_speed = 0;
 int motor_R_speed = 0;
 
@@ -117,24 +117,22 @@ void loop() {
           stop_motor();
           break;
 
+        case L_FORWARD:
 
+          forwardL();
+          break;
 
-        // case L_FORWARD:
+        case R_FORWARD:
+          forwardR();
+          break;
 
-        //   forwardL();
-        //   break;
+        case R_BACKWARD:
+          backwardR();
+          break;
 
-        // case R_FORWARD:
-        //   forwardR();
-        //   break;
-
-        // case R_BACKWARD:
-        //   backwardR();
-        //   break;
-
-        // case L_BACKWARD:
-        //   backwardL();
-        //   break;
+        case L_BACKWARD:
+          backwardL();
+          break;
 
 
         case SPEED:
@@ -214,6 +212,7 @@ void left() {
 }
 
 void right() {
+
   analogWrite(MOTORE2_1, STEER_SPEED);
   analogWrite(MOTORE2_2, 0);
 }
