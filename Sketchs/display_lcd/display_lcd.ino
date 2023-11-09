@@ -9,17 +9,20 @@ void setup() {
   Serial.begin(9600);
   // set up the LCD's number of columns and rows: 
   lcd.begin(16, 2);
+  lcd.clear();
+//lcd.setCursor(0, 0);
+  lcd.print("hllo1");
 
-write();
+//write();
     //lcd.print("Federica fet e merd. federrica puzz e cacc. federica e na zzozz");   
 } 
 
 void loop() {
-  for (int positionCounter = 0; positionCounter < 35; positionCounter++) {
+/*  for (int positionCounter = 0; positionCounter < 35; positionCounter++) {
     lcd.scrollDisplayLeft();
     delay(400);
   }
-write();
+write();*/
 
 }
 

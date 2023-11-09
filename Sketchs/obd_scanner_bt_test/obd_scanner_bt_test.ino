@@ -5,42 +5,33 @@
 
 #define bluetoothSerial_RX_PIN 2
 #define bluetoothSerial_TX_PIN 3
-
 #define PREVIOUS_SENSOR 10
 #define NEXT_SENSOR 11
-
-#define DELAY_TIME 1
-
+//#define HIGH 1
+//#define LOW 0
 #define DEBUG false
 #define OBD_DEBUG false
-#define DEBUG_ODB_ERROR_MESSAGES false
 #define PLOTTER false
-
-#define OBD_TIMEOUT 1000
 #define BAUD_RATE 9600
-#define OBD_BAUD_RATE 115200
-
+#define OBD_BAUD_RATE 38400
+#define TIMEDELAY 0
 SoftwareSerial mySerial(bluetoothSerial_RX_PIN, bluetoothSerial_TX_PIN); // RX, TX
 
 
-LiquidCrystal lcd(9, 8, 7, 6, 5, 4);
+LiquidCrystal lcd(9, 8, 7, 6, 5, 4); //TODO: sistemare pin
 
 ELM327 myELM327;
 
-int sensors[] = {ENGINE_COOLANT_TEMP, ENGINE_OIL_TEMP, FUEL_PRESSURE,INTAKE_AIR_TEMP, ENGINE_RPM, VEHICLE_SPEED};
+int sensors[] = {ENGINE_COOLANT_TEMP, ENGINE_OIL_TEMP, FUEL_PRESSURE};
 int sensor_to_read = 0;
 
 float rpm, engineCoolantTemp, engineOilTemp, fuelPressure, intakeAirTemp, vehicleSpeed = 0;
 
-int prev_sensor_btn_last_state = LOW;
-int next_sensor_btn_last_state = LOW;
 
 int calculatetime = 0;
 int currentTime = 0;
-bool calc_finished = true;
 
 //00:1D:A5:68:98:8B
-
 //ELM - 001D,A5,68988B
 //TEL - 684A,E9,D8125C
 //CUFFIE - 0023,02,180A23
@@ -52,26 +43,32 @@ void setup() {
   pinMode(PREVIOUS_SENSOR, INPUT);
 
   Serial.begin(BAUD_RATE);
-  mySerial.begin(OBD_BAUD_RATE);
-  lcd.begin(16, 2);
+  //mySerial.begin(OBD_BAUD_RATE);
+  //lcd.begin(16, 2);
 
-  myELM327.begin(mySerial, OBD_DEBUG, OBD_TIMEOUT);
+ // myELM327.begin(mySerial, OBD_DEBUG, 10000);
 
 }
 
 void loop() {
-
-   
-
+  
+  if(calculatetime==1){
+      currentTime = millis();
+      calculatetime = 0;
+  }
+  
   switch (sensors[sensor_to_read]) {
     case ENGINE_COOLANT_TEMP:
       get_engine_coolant_temp();
      // Serial.print("Engine Coolant Temp: "); Serial.print(engineCoolantTemp); Serial.println(" C°");
+      //write_lcd("Eng Coolant Tmp: ", String(engineCoolantTemp) + " C°");
     break;
 
     case ENGINE_OIL_TEMP:
       get_engine_oil_temp();
     //  Serial.print("Engine Oil Temp: "); Serial.print(engineOilTemp); Serial.println(" C°");
+      //write_lcd("Engine Oil Temp: ", String(engineOilTemp) + " C°");
+
     break;
 
 
@@ -80,41 +77,29 @@ void loop() {
     //  Serial.print("Fuel Pressure: "); Serial.print(fuelPressure); Serial.println(" Bar");
     break;
 
-    case INTAKE_AIR_TEMP:
-      get_inake_air_temp();
-    //  Serial.print("Intake Air Temp: "); Serial.print(intakeAirTemp); Serial.println(" C°");
-    break;
-
-    case ENGINE_RPM:
-      get_rpm();
-   //   Serial.print("RPM: "); Serial.println(rpm);    
-    break;
-
-    case VEHICLE_SPEED:
-      get_vehicle_speed();
-    //  Serial.print("Vehicle Speed: "); Serial.print(vehicleSpeed); Serial.println(" km/h");
-    break;
-
     default:
-    //sensor_to_read--;
+    sensor_to_read--;
     break;
 
   }
   
-  int next_sensor_btn_state = digitalRead(NEXT_SENSOR);
-  if(next_sensor_btn_state == HIGH && sensor_to_read < number_of_sensors()-1){
-    if(next_sensor_btn_last_state == LOW)
+  if(digitalRead(NEXT_SENSOR) == HIGH && sensor_to_read < number_of_sensors()){
+    if(millis()-currentTime > 1000){
         sensor_to_read++;
+        calculatetime = 1;
+        
+    }
+
   }
-  next_sensor_btn_last_state =  next_sensor_btn_state;
-  
-  int prev_sensor_btn_state = digitalRead(PREVIOUS_SENSOR);
-  if(prev_sensor_btn_state == HIGH && sensor_to_read > 0){
-    if(prev_sensor_btn_last_state == LOW)
-        sensor_to_read--;    
+
+  if(digitalRead(PREVIOUS_SENSOR) == HIGH && sensor_to_read > 0){
+    if(millis()-currentTime > 1000){
+        sensor_to_read--;
+        calculatetime  = 1;
+    }
+
   }
-  prev_sensor_btn_last_state = prev_sensor_btn_state; 
-  
+
   if(DEBUG){
     Serial.print("sensor_to_read: "); Serial.println(sensor_to_read);
     Serial.print("NEXT_SENSOR: ");  Serial.println(digitalRead(NEXT_SENSOR));
@@ -124,8 +109,6 @@ void loop() {
   }
 
     if(PLOTTER){
-
-      //TODO: fare ciclo per chiamarli tutti e controllare prendere valore solo se != 0.0 e da error
 
       get_engine_coolant_temp();
       Serial.print("Engine_Coolant_Temp(C°):"); Serial.println(engineCoolantTemp);
@@ -148,7 +131,7 @@ void loop() {
 
   }
 
-  delay(DELAY_TIME);
+  delay(10);
 }
 
 int number_of_sensors(){
@@ -177,71 +160,110 @@ void write_lcd(String messageRow1, String messageRow2){
   Serial.println(messageRow1 + " " + messageRow2 );
 
 }
+/*
 
-void check_elm_error(String sensor, String value, String unit){
-   
-   if (myELM327.nb_rx_state == ELM_SUCCESS){
-    
-      write_lcd(sensor + ": ", value + " " + unit);
-    
-    } else if (myELM327.nb_rx_state != ELM_GETTING_MSG){
-      
-      //write_lcd(sensor ,"ERROR");
-      
-      if(DEBUG_ODB_ERROR_MESSAGES) 
-        myELM327.printError();
-    
-    } else if (myELM327.nb_rx_state != ELM_NO_DATA){
-      
-      write_lcd(sensor ,"NO_DATA");
-    }
+void get_engine_coolant_temp(){
+  engineCoolantTemp = random(100);
 }
 
 void get_rpm(){
+  rpm = random(5000);
+}
+void get_fuel_pressure(){
+  fuelPressure = kpa_to_bar(random(500));
+}
 
-  rpm = myELM327.rpm();
-  
-  check_elm_error("RPM", String(rpm), "");
-  
+void get_engine_oil_temp(){
+  engineOilTemp = random(80);
+}
+
+void get_inake_air_temp(){
+  intakeAirTemp = random(50);
+}
+
+void get_vehicle_speed(){
+  vehicleSpeed = random(200);
+}
+
+
+*/
+void get_rpm(){
+
+  rpm = random(100);
+
+   if (myELM327.nb_rx_state == ELM_SUCCESS)
+  {
+    write_lcd("RPM: ", String(rpm));
+  }
+  else if (myELM327.nb_rx_state != ELM_GETTING_MSG){
+    write_lcd("RPM:" ,"ERROR");
+    myELM327.printError();
+  }
 }
 
 void get_engine_coolant_temp(){
 
-  engineCoolantTemp = myELM327.engineCoolantTemp();
-  
-  check_elm_error("Eng Coolant Tmp", String(engineCoolantTemp), "C°");
+Serial.println("Aspetto 2 secpndi...");
+delay(TIMEDELAY);
+  engineCoolantTemp = random(100);
 
+Serial.println("Fine attesa!");
+  write_lcd("Eng Coolant Tmp:", String(engineCoolantTemp) + " C°");
+
+ 
 }
 
 void get_fuel_pressure(){
 
-  fuelPressure = myELM327.fuelRailGuagePressure();
-  fuelPressure = kpa_to_bar(fuelPressure);
+Serial.println("Aspetto 2 secpndi...");
+delay(TIMEDELAY);
+  fuelPressure = kpa_to_bar(random(500));
 
-  check_elm_error("Fuel Pressure", String(fuelPressure), "Bar");
+Serial.println("Fine attesa!");
+
+    write_lcd("Fuel Pressure: ", String(fuelPressure) + "  Bar");
 
 }
 
 void get_engine_oil_temp(){
 
-    engineOilTemp = myELM327.oilTemp();
+ 
     
-    check_elm_error("Engine Oil Temp", String(engineOilTemp), "C°");
+Serial.println("Aspetto 2 secpndi...");
+delay(TIMEDELAY);
+  engineOilTemp = random(100);
+
+Serial.println("Fine attesa!");
+
+write_lcd("Engine Oil Temp:" , String(engineOilTemp) + " C°");
 
 }
 
 void get_inake_air_temp(){
 
   intakeAirTemp = myELM327.intakeAirTemp();
-  
-  check_elm_error("Intake Air Temp", String(intakeAirTemp), "C°");
 
+  if (myELM327.nb_rx_state == ELM_SUCCESS)
+  {
+    write_lcd("Intake Air Temp:" , String(intakeAirTemp) + " C°");
+  }
+  else if (myELM327.nb_rx_state != ELM_GETTING_MSG){
+    write_lcd("Intake Air Temp:", "ERROR");
+    myELM327.printError();
+  }
 }
 
 void get_vehicle_speed(){
   
   vehicleSpeed = myELM327.kph();
 
-  check_elm_error("Vehicle Speed", String(vehicleSpeed), "km/h");
+   if (myELM327.nb_rx_state == ELM_SUCCESS)
+  {
+    write_lcd("Vehicle Speed:" , String(vehicleSpeed) + "  km/h");
 
+  }
+  else if (myELM327.nb_rx_state != ELM_GETTING_MSG){
+    write_lcd("Vehicle Speed:", "ERROR");
+    myELM327.printError();
+  }
 }

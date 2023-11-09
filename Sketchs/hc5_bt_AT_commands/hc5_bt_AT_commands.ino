@@ -1,29 +1,39 @@
 #include <SoftwareSerial.h>
+#define rxPin 2
+#define txPin 3
+#define baudrate 38400
 
-#define bluetoothSerial_TX_PIN 3
-#define bluetoothSerial_RX_PIN 2
+String msg;
 
-SoftwareSerial bluetoothSerial =  SoftwareSerial(bluetoothSerial_RX_PIN, bluetoothSerial_TX_PIN);
+SoftwareSerial hc05(rxPin ,txPin);
 
-
-void setup() {
+void setup(){
+  pinMode(rxPin,INPUT);
+  pinMode(txPin,OUTPUT);
   pinMode(9, OUTPUT);
   digitalWrite(9, HIGH);
-  Serial.begin(9600);
-  bluetoothSerial.begin(38400);
   
-  Serial.println("Enter AT commands:");
-
+  Serial.begin(9600);
+  Serial.println("ENTER AT Commands:");
+  hc05.begin(baudrate);
 }
 
-void loop() {
+void loop(){
+    readSerialPort();
+    if(msg!="") hc05.println(msg);
+    
+    if (hc05.available()>0){
+      Serial.write(hc05.read());
+    }
+}
 
-  if (bluetoothSerial.available() > 0) {
-    Serial.println(bluetoothSerial.readString());
-
-  }
-
-  if (Serial.available() > 0) {
-    bluetoothSerial.write(Serial.read());
-  }
+void readSerialPort(){
+  msg="";
+ while (Serial.available()) {
+   delay(10);  
+   if (Serial.available() >0) {
+     char c = Serial.read();  //gets one byte from serial buffer
+     msg += c; //makes the string readString
+   }
+ }
 }
