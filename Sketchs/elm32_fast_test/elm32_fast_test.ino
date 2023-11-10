@@ -1,29 +1,32 @@
 #include <SoftwareSerial.h>
 #include "ELMduino.h"
 
+#define bluetoothSerial_RX_PIN 2
+#define bluetoothSerial_TX_PIN 3
 
-SoftwareSerial mySerial(2, 3); // RX, TX
+#define ODB_TIMEOUT 1000
+#define OBD_DEBUG false
+
+#define DELAY_TIME 1000
+
+SoftwareSerial mySerial(bluetoothSerial_RX_PIN, bluetoothSerial_TX_PIN); // RX, TX
 
 
 ELM327 myELM327;
 
 
-float rpm = 0;
+float value = 0;
 
 
 void setup()
 {
-/*#if LED_BUILTIN
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
-#endif*/
 
   Serial.begin(9600);
   mySerial.begin(115200);
 
   Serial.println("Attempting to connect to ELM327...");
 
-  if (!myELM327.begin(mySerial, false, 1000))
+  if (!myELM327.begin(mySerial, OBD_DEBUG, ODB_TIMEOUT))
   {
     Serial.println("Couldn't connect to OBD scanner");
     while (1);
@@ -35,16 +38,16 @@ void setup()
 
 void loop()
 {
-  float tempRPM = myELM327.fuelRailGuagePressure();
+  uint32_t temp_value = myELM327.supportedPIDs_1_20();
 
   if (myELM327.nb_rx_state == ELM_SUCCESS)
   {
-    rpm = tempRPM;
-    Serial.print("Fuel pressure: "); Serial.println(rpm);
+    value = temp_value;
+    Serial.print("supportedPIDs_1_20: "); Serial.println(temp_value);
   }
   else if (myELM327.nb_rx_state != ELM_GETTING_MSG)
     myELM327.printError();
 
 
-  delay(1);
+  delay(DELAY_TIME);
 }

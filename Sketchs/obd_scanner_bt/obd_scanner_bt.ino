@@ -27,7 +27,7 @@ LiquidCrystal lcd(9, 8, 7, 6, 5, 4);
 
 ELM327 myELM327;
 
-int sensors[] = {ENGINE_COOLANT_TEMP, ENGINE_OIL_TEMP, FUEL_PRESSURE,INTAKE_AIR_TEMP, ENGINE_RPM, VEHICLE_SPEED};
+int sensors[] = {ENGINE_COOLANT_TEMP, ENGINE_OIL_TEMP, FUEL_RAIL_GUAGE_PRESSURE,INTAKE_AIR_TEMP, ENGINE_RPM, VEHICLE_SPEED};
 int sensor_to_read = 0;
 
 float rpm, engineCoolantTemp, engineOilTemp, fuelPressure, intakeAirTemp, vehicleSpeed = 0;
@@ -44,6 +44,7 @@ bool calc_finished = true;
 //ELM - 001D,A5,68988B
 //TEL - 684A,E9,D8125C
 //CUFFIE - 0023,02,180A23
+//PC - 0C96,E6,B56CDC
 
 
 void setup() {
@@ -75,8 +76,8 @@ void loop() {
     break;
 
 
-    case FUEL_PRESSURE:
-      get_fuel_pressure();
+    case FUEL_RAIL_GUAGE_PRESSURE:
+      get_fuel_rail_gauge_pressure();
     //  Serial.print("Fuel Pressure: "); Serial.print(fuelPressure); Serial.println(" Bar");
     break;
 
@@ -134,7 +135,7 @@ void loop() {
       Serial.print("Engine_Oil_Temp(C°):"); Serial.println(engineOilTemp); 
 
 
-      get_fuel_pressure();
+      get_fuel_rail_gauge_pressure();
       Serial.print("Fuel_Pressure(Bar):"); Serial.println(fuelPressure);
 
       get_inake_air_temp();
@@ -178,6 +179,7 @@ void write_lcd(String messageRow1, String messageRow2){
 
 }
 
+
 void check_elm_error(String sensor, String value, String unit){
    
    if (myELM327.nb_rx_state == ELM_SUCCESS){
@@ -187,11 +189,15 @@ void check_elm_error(String sensor, String value, String unit){
     } else if (myELM327.nb_rx_state != ELM_GETTING_MSG){
       
       //write_lcd(sensor ,"ERROR");
+      if (myELM327.nb_rx_state == ELM_NO_DATA){
+      
+      write_lcd(sensor ,"N/A");
+    }
       
       if(DEBUG_ODB_ERROR_MESSAGES) 
         myELM327.printError();
     
-    } else if (myELM327.nb_rx_state != ELM_NO_DATA){
+    } else if (myELM327.nb_rx_state == ELM_NO_DATA){
       
       write_lcd(sensor ,"NO_DATA");
     }
@@ -213,12 +219,12 @@ void get_engine_coolant_temp(){
 
 }
 
-void get_fuel_pressure(){
+void get_fuel_rail_gauge_pressure(){
 
   fuelPressure = myELM327.fuelRailGuagePressure();
   fuelPressure = kpa_to_bar(fuelPressure);
 
-  check_elm_error("Fuel Pressure", String(fuelPressure), "Bar");
+  check_elm_error("Rail Gauge Press", String(fuelPressure), "Bar");
 
 }
 
@@ -226,7 +232,7 @@ void get_engine_oil_temp(){
 
     engineOilTemp = myELM327.oilTemp();
     
-    check_elm_error("Engine Oil Temp", String(engineOilTemp), "C°");
+    check_elm_error("Engine Oil Temp:", String(engineOilTemp), "C°");
 
 }
 
