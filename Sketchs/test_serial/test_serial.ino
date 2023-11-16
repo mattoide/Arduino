@@ -8,6 +8,6 @@ void loop() {
     Serial.println(Serial.readStringUntil('\n'));
   }
 
- // delay(10);
+  delay(10);
 
 }

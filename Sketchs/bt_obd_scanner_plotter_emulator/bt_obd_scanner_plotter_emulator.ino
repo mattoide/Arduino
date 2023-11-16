@@ -1,10 +1,9 @@
 #include <SoftwareSerial.h>
 #include "ELMduino.h"
-#include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
 
-
-#define bluetoothSerial_RX_PIN 7  //TODO: sistemare per real 2
-#define bluetoothSerial_TX_PIN 8  //TODO: sistemare per real 3
+#define bluetoothSerial_RX_PIN 2  //TODO: 7 sistemare per real 2
+#define bluetoothSerial_TX_PIN 3  //TODO: 8 sistemare per real 3
 
 #define PREVIOUS_SENSOR 10
 #define NEXT_SENSOR 11
@@ -14,7 +13,7 @@
 #define DEBUG false
 #define OBD_DEBUG false
 #define DEBUG_ODB_ERROR_MESSAGES false
-#define PLOTTER true
+#define PLOTTER false
 
 #define OBD_TIMEOUT 1000
 #define BAUD_RATE 9600
@@ -22,16 +21,17 @@
 #define ELM_PORT Serial
 
 SoftwareSerial mySerial(bluetoothSerial_RX_PIN, bluetoothSerial_TX_PIN);  // RX, TX
+LiquidCrystal_I2C lcd(0x3F, 16, 2);
 
-
-LiquidCrystal lcd(9, 8, 7, 6, 5, 4);
 
 ELM327 myELM327;
 
-int sensors[] = { ENGINE_COOLANT_TEMP, ENGINE_OIL_TEMP, FUEL_RAIL_GUAGE_PRESSURE, INTAKE_AIR_TEMP, ENGINE_RPM, VEHICLE_SPEED };
+int sensors[] = { ENGINE_COOLANT_TEMP, ENGINE_OIL_TEMP, FUEL_RAIL_GUAGE_PRESSURE, INTAKE_AIR_TEMP, ENGINE_RPM, VEHICLE_SPEED, SUPPORTED_PIDS_1_20 };
 int sensor_to_read = 0;
 
 float rpm, engineCoolantTemp, engineOilTemp, fuelPressure, intakeAirTemp, vehicleSpeed = 0;
+
+uint32_t pids = 0;
 
 int prev_sensor_btn_last_state = LOW;
 int next_sensor_btn_last_state = LOW;
@@ -55,8 +55,10 @@ void setup() {
 
   mySerial.begin(BAUD_RATE);  //TODO: OBD_BAUD_RATE for real
   ELM_PORT.begin(BAUD_RATE);
-  lcd.begin(16, 2);
-
+  
+  lcd.init();       
+  lcd.backlight();
+  
   myELM327.begin(ELM_PORT, OBD_DEBUG, OBD_TIMEOUT);
 }
 
@@ -87,6 +89,12 @@ void loop() {
     case VEHICLE_SPEED:
       get_vehicle_speed();
       break;
+
+
+    case SUPPORTED_PIDS_1_20:
+      get_supported_PIDs_1_20();
+      break;
+      
 
     default:
       //sensor_to_read--;
@@ -153,12 +161,19 @@ void display_scroll() {
 }
 
 void write_lcd(String sensor, String value, String unit) {
-  /*
+
+    if(unit == "C")
+    unit += char(223);
+
+    String messageRow1 = sensor +  " ";
+    String messageRow2 = value +  " " + unit;
+    
   lcd.clear();
-  lcd.print(messageRow1);   
-  lcd.setCursor(0, 1);
-  lcd.print(messageRow2);
-  */
+      lcd.setCursor(0, 0);
+    lcd.print(messageRow1);
+    lcd.setCursor(0, 1);
+    lcd.print(messageRow2);
+
   if (PLOTTER){
     String sensor_replaced = sensor;
     sensor_replaced.replace(" ", "_");
@@ -166,10 +181,13 @@ void write_lcd(String sensor, String value, String unit) {
     String string_plotter = sensor_replaced + "(" + unit + "):" + value;
     mySerial.println(string_plotter); //TOD:Serial
   } else{
-    //TODO: lcd
-    String messageRow1 = sensor;
-    String messageRow2 = value + " " + unit;
+  
+  if(unit == "C")
+    unit += char(223);
 
+    String messageRow1 = sensor +  " ";
+    String messageRow2 = value +  " " + unit;
+  
     mySerial.println(messageRow1 + messageRow2);
 
 
@@ -211,6 +229,11 @@ void check_elm_error(String sensor, String value, String unit) {
   }
 }
 
+void get_supported_PIDs_1_20(){
+   pids = myELM327.supportedPIDs_1_20();
+   check_elm_error("PIDs_1_20", String(pids), "");
+}
+
 void get_rpm() {
 
   rpm = myELM327.rpm();
@@ -222,7 +245,7 @@ void get_engine_coolant_temp() {
 
   engineCoolantTemp = myELM327.engineCoolantTemp();
 
-  check_elm_error("Eng_Coolant_Tmp", String(engineCoolantTemp), "C°");
+  check_elm_error("Eng Coolant Tmp", String(engineCoolantTemp), "C");
 }
 
 void get_fuel_rail_gauge_pressure() {
@@ -230,26 +253,26 @@ void get_fuel_rail_gauge_pressure() {
   fuelPressure = myELM327.fuelRailGuagePressure();
   fuelPressure = kpa_to_bar(fuelPressure);
 
-  check_elm_error("Rail_Gauge_Press", String(fuelPressure), "Bar");
+  check_elm_error("Rail Gauge Press", String(fuelPressure), "Bar");
 }
 
 void get_engine_oil_temp() {
 
   engineOilTemp = myELM327.oilTemp();
 
-  check_elm_error("Engine_Oil_Temp", String(engineOilTemp), "C°");
+  check_elm_error("Engine Oil Temp", String(engineOilTemp), "C");
 }
 
 void get_inake_air_temp() {
 
   intakeAirTemp = myELM327.intakeAirTemp();
 
-  check_elm_error("Intake_Air_Temp", String(intakeAirTemp), "C°");
+  check_elm_error("Intake Air Temp", String(intakeAirTemp), "C");
 }
 
 void get_vehicle_speed() {
 
   vehicleSpeed = myELM327.kph();
 
-  check_elm_error("Vehicle_Speed", String(vehicleSpeed), "km/h");
+  check_elm_error("Vehicle Speed", String(vehicleSpeed), "km/h");
 }
