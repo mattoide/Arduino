@@ -2,15 +2,19 @@
 #include "AudioMessages.h"
 
 
-#define S3 9
+#define S3 7
 #define S2 8
-#define OUT 7
-#define S0 3
-#define S1 2
+#define OUT 9
+#define S0 5
+#define S1 6
 
 #define WHITE_THRESHOLD 40
 #define BLACK_THRESHOLD 250
 #define MISURATIONS_NUMBER 5
+
+int passeggeri_range_values[] = {320, 390};
+int merci_range_values[] = {75, 90};
+int storico_range_values[] = {40, 70};
 
 
 int red, green, blue, clear;
@@ -55,7 +59,7 @@ void loop() {
  Serial.println(color);*/
   int sum = red + green + blue;
 Serial.println(sum);
-//detectLoco(sum);
+detectLoco(sum);
 
   delay(500);
 }
@@ -71,7 +75,7 @@ void updateRGB() {
   blue = 0;
   clear = 0;
 
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < MISURATIONS_NUMBER; i++) {
     digitalWrite(S2, LOW);
     digitalWrite(S3, LOW);
     red += pulseIn(OUT, LOW);
@@ -90,10 +94,10 @@ void updateRGB() {
     delay(1);
   }
 
-  red /= 5;
-  green /= 5;
-  blue /= 5;
-  clear /= 5;
+  red /= MISURATIONS_NUMBER;
+  green /= MISURATIONS_NUMBER;
+  blue /= MISURATIONS_NUMBER;
+  clear /= MISURATIONS_NUMBER;
 
   // Power down
   digitalWrite(S0, LOW);
@@ -135,13 +139,13 @@ String getColor() {
 
 void detectLoco(int sum) {
 
-  if (sum > 95 && sum < 105){
+  if (sum > merci_range_values[0] && sum < merci_range_values[1]){
     Serial.println("Merci");
-  }else if(sum> 75 && sum < 95){
+  }else if(sum> passeggeri_range_values[0] && sum < passeggeri_range_values[1]){
     Serial.println("Passeggeri");
     startPlayback(sample, sizeof(sample));
 
-  } else if(sum> 40 && sum < 60){
+  } else if(sum> storico_range_values[0] && sum < storico_range_values[1]){
     Serial.println("Storico");
   }
 }
