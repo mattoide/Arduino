@@ -58,13 +58,14 @@ void setup() {
   
   lcd.init();       
   lcd.backlight();
-  
+                //ELM_PORT for emu
   myELM327.begin(ELM_PORT, OBD_DEBUG, OBD_TIMEOUT);
 }
 
 void loop() {
+      get_supported_PIDs_1_20();
 
-  switch (sensors[sensor_to_read]) {
+ /* switch (sensors[sensor_to_read]) {
     case ENGINE_COOLANT_TEMP:
       get_engine_coolant_temp();
       break;
@@ -99,7 +100,7 @@ void loop() {
     default:
       //sensor_to_read--;
       break;
-  }
+  }*/
 
   int next_sensor_btn_state = digitalRead(NEXT_SENSOR);
 
@@ -163,13 +164,13 @@ void display_scroll() {
 void write_lcd(String sensor, String value, String unit) {
 
     if(unit == "C")
-    unit += char(223);
+      unit += char(223);
 
     String messageRow1 = sensor +  " ";
     String messageRow2 = value +  " " + unit;
     
-  lcd.clear();
-      lcd.setCursor(0, 0);
+    lcd.clear();
+    lcd.setCursor(0, 0);
     lcd.print(messageRow1);
     lcd.setCursor(0, 1);
     lcd.print(messageRow2);
@@ -181,15 +182,7 @@ void write_lcd(String sensor, String value, String unit) {
     String string_plotter = sensor_replaced + "(" + unit + "):" + value;
     mySerial.println(string_plotter); //TOD:Serial
   } else{
-  
-  if(unit == "C")
-    unit += char(223);
-
-    String messageRow1 = sensor +  " ";
-    String messageRow2 = value +  " " + unit;
-  
     mySerial.println(messageRow1 + messageRow2);
-
 
   }
    
@@ -197,11 +190,16 @@ void write_lcd(String sensor, String value, String unit) {
 }
 
 void check_elm_error(String sensor, String value, String unit) {
+  if(pids>=32){
+    pids = 0;
+  }
 
   if (myELM327.nb_rx_state == ELM_SUCCESS) {
 
     calc_finished = true;
           write_lcd(sensor, value, unit);
+             Serial.println(pids);
+
 
 
   } else if (myELM327.nb_rx_state != ELM_GETTING_MSG) {

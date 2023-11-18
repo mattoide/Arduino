@@ -1,39 +1,41 @@
+#include <TMRpcm.h>
+#include <pcmConfig.h>
+#include <pcmRF.h>
+
 #include "AudioMessages.h"
 #include <SPI.h>
 #include <SD.h>
 
 
-#define S3 7
-#define S2 8
-#define OUT 9
+#define OUT 3
 #define S0 5
 #define S1 6
+#define S2 8
+#define S3 7
+
+
 
 #define WHITE_THRESHOLD 40
 #define BLACK_THRESHOLD 250
 #define MISURATIONS_NUMBER 5
 
-int passeggeri_range_values[] = {320, 390};
-int merci_range_values[] = {75, 90};
-int storico_range_values[] = {40, 70};
+int passeggeri_range_values[] = {59, 62};
+int merci_range_values[] = {345, 355};
+int storico_range_values[] = {52, 55};
 
 
 int red, green, blue, clear;
 
+TMRpcm tmrpcm; 
 
-
-
-
-/**
-* Source code:
-* https://www.italiantechproject.it/sensori-con-arduino/colore-tcs3200
-*/
 
 void setup() {
   Serial.begin(9600);
 
-    if (!SD.begin(4)) {
-    Serial.println(" failed!");
+    tmrpcm.speakerPin = 9;
+
+    if (!SD.begin()) {
+    Serial.println("SD init failed!");
     while(true);
   }
 
@@ -46,9 +48,13 @@ void setup() {
   // Power down
   digitalWrite(S0, LOW);
   digitalWrite(S1, LOW);
+
+  delay(10);
 }
 
 void loop() {
+  
+  
   updateRGB();
  /* Serial.print("Rosso: ");
   Serial.print(red);
@@ -60,14 +66,22 @@ void loop() {
   Serial.print(blue);
   Serial.print(" - ");
   Serial.print("Luce: ");
-  Serial.println(clear);
-   String color = getColor();
+  Serial.println(clear);*/
+  /* String color = getColor();
  Serial.println(color);*/
-  int sum = red + green + blue;
+ 
+ int sum = red + green + blue;
 Serial.println(sum);
-detectLoco(sum);
+ detectLoco(sum);
+isPLaying();
 
-  delay(500);
+delay(100);
+}
+
+void isPLaying(){
+  if(!tmrpcm.isPlaying()){
+    digitalWrite(9, LOW);
+  }
 }
 
 void updateRGB() {
@@ -118,23 +132,23 @@ String getColor() {
   if (R_G > 0.75 && R_G < 1.1
       && G_B > 0.9 && G_B < 1.4
       && B_R > 0.75 && B_R < 1.5) {
-    if (clear <= WHITE_THRESHOLD) {
+    if (clear < WHITE_THRESHOLD) {
       return "Bianco";
-    } else if (clear >= BLACK_THRESHOLD) {
+    } else if (clear > BLACK_THRESHOLD) {
       return "Nero";
     }
     return "Grigio";
-  } else if (R_G <= 0.8 && G_B >= 1.1 && G_B <= 1.4 && B_R >= 1.2) {
+  } else if (R_G < 0.8 && G_B > 1.1 && G_B < 1.4 && B_R > 1.2) {
     return "Rosso";
   } else if (R_G > 0.9 && G_B < 1.2 && B_R < 1.45) {
     return "Verde";
-  } else if (R_G >= 0.9 && G_B >= 1.2 && B_R < 0.8) {
+  } else if (R_G > 0.9 && G_B > 1.2 && B_R < 0.8) {
     return "Blu";
-  } else if (R_G >= 0.7 && G_B < 1.2 && B_R >= 1) {
+  } else if (R_G > 0.7 && G_B < 1.2 && B_R > 1) {
     return "Giallo";
-  } else if (R_G < 0.8 && G_B < 1.3 && B_R >= 1) {
+  } else if (R_G < 0.8 && G_B < 1.3 && B_R > 1) {
     return "Arancione";
-  } else if (G_B > 1.35 && B_R >= 1.1) {
+  } else if (G_B > 1.35 && B_R > 1.1) {
     return "Rosa";
   } else if (R_G < 0.9 && B_R < 1.2) {
     return "Viola";
@@ -147,23 +161,20 @@ void detectLoco(int sum) {
 
   if (sum > merci_range_values[0] && sum < merci_range_values[1]){
     Serial.println("Merci");
-    playSoundFor("pernapoli.wav");
-  }else if(sum> passeggeri_range_values[0] && sum < passeggeri_range_values[1]){
+    playSoundFor("trenom~1.wav");
+  }else if(sum > passeggeri_range_values[0] && sum < passeggeri_range_values[1]){
     Serial.println("Passeggeri");
     playSoundFor("danapoli.wav");
-  } else if(sum> storico_range_values[0] && sum < storico_range_values[1]){
+  } else if(sum > storico_range_values[0] && sum < storico_range_values[1]){
     Serial.println("Storico");
-    playSoundFor("pernordeuropa.wav");
+      playSoundFor("pernor~1.wav");
   }
 }
 
-void playSoundFor(String loco){
+void playSoundFor(char* loco){
+  digitalWrite(9, HIGH);
 
-  // open wave file from sdcard
-  File myFile = SD.open(loco);
-
-  if (!myFile) {
-    Serial.println("Error opening " + loco);
-  }
-
+ /* tmrpcm.setVolume(6);
+  tmrpcm.play(loco);
+  delay(3000);*/
 }
