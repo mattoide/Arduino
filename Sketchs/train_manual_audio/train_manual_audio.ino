@@ -60,7 +60,7 @@ void isPLaying() {
 
 void detectLoco(int value) {
 
-  value = map(value, 0, 1022, 0, 9);
+  value = map(value, 0, 1022, 0, 3);
 
   if (value != previous_value) {
     previous_value = value;
